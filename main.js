@@ -209,7 +209,7 @@ const eventListeners = () => {
       videoId: document.querySelector('#videoId').value,
       title: document.querySelector('#title').value,
       category: document.querySelector('#category').value,
-      favorite: document.querySelector('#videoId').value
+      favorite: document.querySelector('#videoId').checked
     }
     data.push(newVideo);
     cardsOnDom(data);
