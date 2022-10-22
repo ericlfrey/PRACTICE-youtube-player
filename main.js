@@ -107,7 +107,7 @@ const videoBtnModal = () => {
 
 // Video component with default arg value
 // = 'cNjIUSDnb9k'
-const videoPlayer = (videoId) => {
+const videoPlayer = (videoId = 'cNjIUSDnb9k') => {
   const domString = `
   <iframe src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
   `;
@@ -156,12 +156,20 @@ const cardsOnDom = (array) => {
 const eventListeners = () => {
   // Bootstrap for grabbing modal so can manually open and close
   const formModal = new bootstrap.Modal(document.querySelector('#add-video'));
-  
+
   // FILTER BUTTON ROW
   document.querySelector('#filterContainer').addEventListener('click', (e) => {
-    console.log("You clicked a filter button", e.target.id);
     // filter on category (either use .filter or a loop)
     // rerender DOM with new array (use the cardsOnDom function)
+    if (e.target.id === 'clear') {
+      cardsOnDom(data);
+    } else if (e.target.id === 'favorite') {
+      const favoriteFilter = data.filter(item => item.favorite);
+      cardsOnDom(favoriteFilter);
+    } else if (e.target.id) {
+      const topics = data.filter(item => item.category === e.target.id);
+      cardsOnDom(topics);
+    }
   });
 
   // BUTTONS ON CARDS
@@ -170,23 +178,22 @@ const eventListeners = () => {
     if (e.target.id) {
       // get the video ID off the button ID
       // find the index of the object in the array
-
+      [, id] = e.target.id.split('--');
+      const index = data.findIndex(item => item.videoId === id);
       // only listen for events with "watch" or "delete" included in the string
 
       // if watch: grab the ID and rerender the videoPlayer with that ID as an argument
       if (e.target.id.includes('watch')) {
-        console.log("Pressed Watch Button")        
-        
-        
+        videoPlayer(id);
         // scroll to top of page
         document.location = '#';
       }
-
       // if delete: find the index of item in array and splice
       // NOTE: if 2 videos have the same videoId, this will delete the first one in the array
       if (e.target.id.includes('delete')) {
-        console.log("Delete Button Pressed")
+        data.splice(index, 1);
         // rerender DOM with updated data array (use the cardsOnDom function)
+        cardsOnDom(data);
       }
     }
   });
@@ -198,8 +205,15 @@ const eventListeners = () => {
     // grab the values from the form inputs and create an object
     // push that object to the data array    
     // rerender cards using the cardsOnDom function and pass it the updated data array
-    
-    
+    const newVideo = {
+      videoId: document.querySelector('#videoId').value,
+      title: document.querySelector('#title').value,
+      category: document.querySelector('#category').value,
+      favorite: document.querySelector('#videoId').checked
+    }
+    data.push(newVideo);
+    cardsOnDom(data);
+
     // Close modal and reset form
     formModal.hide()
     form.reset();
@@ -208,11 +222,12 @@ const eventListeners = () => {
 
 // *********  FUNCTION TO START APPLICATION  *********  //
 const startApp = () => {
+  document.location = '#';
   videoBtnModal();
   videoPlayer();
   filterButtons();
   cardsOnDom(data);
-  // eventListeners(); // always last
+  eventListeners(); // always last
 };
 
 startApp();
